@@ -30,9 +30,26 @@ class MpSendToAFriend extends Module
     public $secureKey;
     public $pageName;
 
+    /** @var string $baseUrl Module base URL */
+    public $baseUrl;
+    public $latestVersion;
+    public $lastCheck;
+    public $downloadUrl;
+    public $needsUpdate;
+
     const CAPTCHA = 'MPSENDTOAFRIEND_CAPTCHA';
     const PUBLIC_KEY = 'MPSENDTOAFRIEND_PUBLIC_KEY';
     const PRIVATE_KEY = 'MPSENDTOAFRIEND_PRIVATE_KEY';
+
+    const LAST_CHECK = 'MPSENDTOAFRIEND_LAST_CHECK';
+    const LAST_UPDATE = 'MPSENDTOAFRIEND_LAST_UPDATE';
+    const LATEST_VERSION = 'MPSENDTOAFRIEND_LATEST_VERSION';
+    const DOWNLOAD_URL = 'MPSENDTOAFRIEND_DOWNLOAD_URL';
+    const CHECK_INTERVAL = 86400;
+    const UPDATE_INTERVAL = 60;
+
+    const GITHUB_USER = 'firstred';
+    const GITHUB_REPO = 'mpsendtoafriend';
 
     /**
      * MpSendToAFriend constructor.
@@ -56,6 +73,18 @@ class MpSendToAFriend extends Module
             $this->displayName = $this->l('Send to a Friend module');
             $this->description = $this->l('Allows customers to send a product link to a friend.');
         }
+
+        // Only check from Back Office
+        if ($this->context->cookie->id_employee) {
+            $this->baseUrl = $this->context->link->getAdminLink('AdminModules', true).'&'.http_build_query(array(
+                    'configure' => $this->name,
+                    'tab_module' => $this->tab,
+                    'module_name' => $this->name,
+                ));
+
+            $this->lastCheck = Configuration::get(self::LAST_CHECK);
+            $this->checkUpdate();
+        }
     }
 
     /**
@@ -66,7 +95,10 @@ class MpSendToAFriend extends Module
      */
     public function install()
     {
-        return (parent::install() && $this->registerHook('extraLeft') && $this->registerHook('header'));
+        return parent::install()
+            && $this->registerHook('extraLeft')
+            && $this->registerHook('header')
+            && Configuration::updateGlobalValue(self::LATEST_VERSION, '0.0.0');
     }
 
     /**
@@ -76,7 +108,11 @@ class MpSendToAFriend extends Module
      */
     public function uninstall()
     {
-        return (parent::uninstall() && $this->unregisterHook('header') && $this->unregisterHook('extraLeft'));
+        return parent::uninstall()
+            && $this->unregisterHook('header')
+            && $this->unregisterHook('extraLeft')
+            && Configuration::deleteByName(self::LATEST_VERSION)
+            && Configuration::deleteByName(self::DOWNLOAD_URL);
     }
 
     /**
@@ -90,7 +126,23 @@ class MpSendToAFriend extends Module
             $this->postProcess();
         }
 
+        $this->baseUrl = $this->context->link->getAdminLink('AdminModules', true).'&'.http_build_query(array(
+            'configure' => $this->name,
+            'tab_module' => $this->tab,
+            'module_name' => $this->name,
+        ));
+
+        $this->context->smarty->assign(array(
+            'module_url' => $this->baseUrl,
+            'curentVersion' => $this->version,
+            'latestVersion' => $this->latestVersion,
+            'lastCheck' => $this->lastCheck,
+            'needsUpdate' => $this->needsUpdate,
+            'baseUrl' => $this->baseUrl,
+        ));
+
         $output .= $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
+        $output .= $this->context->smarty->fetch($this->local_path.'views/templates/admin/versioncheck.tpl');
         $output .= $this->displayForm();
 
         return $output;
@@ -202,6 +254,10 @@ class MpSendToAFriend extends Module
         Configuration::updateValue(self::PUBLIC_KEY, Tools::getValue(self::PUBLIC_KEY));
         Configuration::updateValue(self::CAPTCHA, Tools::getValue(self::CAPTCHA));
 
+        if (Tools::getValue('mpsendtoafriendCheckUpdate') || Tools::getValue('mpsendtoafriendApplyUpdate')) {
+            $this->checkUpdate();
+        }
+
         $this->context->controller->confirmations[] = $this->l('Successfully updated.');
     }
 
@@ -308,5 +364,230 @@ class MpSendToAFriend extends Module
         $isNameLikeAnUrl = (bool) preg_match_all($regex, $name);
 
         return $isNameLikeAnUrl;
+    }
+
+    /**
+     * Check for module updates
+     */
+    protected function checkUpdate()
+    {
+        $lastCheck = (int) Configuration::get(self::LAST_CHECK);
+        $lastUpdate = (int) Configuration::get(self::LAST_UPDATE);
+
+        if ($lastCheck < (time() - self::CHECK_INTERVAL) || Tools::getValue($this->name.'CheckUpdate')) {
+            $this->lastCheck = time();
+            Configuration::updateGlobalValue(self::LAST_CHECK, time());
+
+            // Initialize GitHub Client
+            $client = new \Github\Client(
+                new \Github\HttpClient\CachedHttpClient(array('cache_dir' => '/tmp/github-api-cache'))
+            );
+
+
+            // Check the release tag
+            try {
+                $latestRelease = $client->api('repo')->releases()->latest(self::GITHUB_USER, self::GITHUB_REPO);
+                if (isset($latestRelease['tag_name']) && $latestRelease['tag_name']) {
+                    if (version_compare($this->version, $latestRelease['tag_name'], '<') &&
+                        isset($latestRelease['assets'][0]['browser_download_url'])) {
+                        Configuration::updateGlobalValue(self::LATEST_VERSION, $latestRelease['tag_name']);
+                        Configuration::updateGlobalValue(self::DOWNLOAD_URL, $latestRelease['assets'][0]['browser_download_url']);
+                        $this->latestVersion = $latestRelease['tag_name'];
+                        $this->downloadUrl = $latestRelease['assets'][0]['browser_download_url'];
+                    }
+                }
+            } catch (Exception $e) {
+                $this->addWarning($e->getMessage());
+            }
+        } else {
+            $this->latestVersion = Configuration::get(self::LATEST_VERSION);
+            $this->downloadUrl = Configuration::get(self::DOWNLOAD_URL);
+        }
+
+        $this->needsUpdate = version_compare($this->version, $this->latestVersion, '<');
+
+        if ($this->needsUpdate &&
+            ($lastUpdate < (time() - self::UPDATE_INTERVAL) || Tools::getValue($this->name.'ApplyUpdate'))
+        ) {
+            $zipLocation = _PS_MODULE_DIR_.$this->name.'.zip';
+            if (@!file_exists($zipLocation)) {
+                file_put_contents($zipLocation, fopen($this->downloadUrl, 'r'));
+            }
+            if (@file_exists($zipLocation)) {
+                $this->extractArchive($zipLocation);
+            } else {
+                // We have an outdated URL, reset last check
+                Configuration::updateGlobalValue(self::LAST_CHECK, 0);
+            }
+        }
+    }
+
+    /**
+     * Add information message
+     *
+     * @param string $message Message
+     */
+    protected function addInformation($message)
+    {
+        if (!Tools::isSubmit('configure')) {
+            $this->context->controller->informations[] = '<a href="'.$this->baseUrl.'">'.$this->displayName.': '.$message.'</a>';
+        } else {
+            $this->context->controller->informations[] = $message;
+        }
+    }
+
+    /**
+     * Add confirmation message
+     *
+     * @param string $message Message
+     */
+    protected function addConfirmation($message)
+    {
+        if (!Tools::isSubmit('configure')) {
+            $this->context->controller->confirmations[] = '<a href="'.$this->baseUrl.'">'.$this->displayName.': '.$message.'</a>';
+        } else {
+            $this->context->controller->confirmations[] = $message;
+        }
+    }
+
+    /**
+     * Add warning message
+     *
+     * @param string $message Message
+     */
+    protected function addWarning($message)
+    {
+        if (!Tools::isSubmit('configure')) {
+            $this->context->controller->warnings[] = '<a href="'.$this->baseUrl.'">'.$this->displayName.': '.$message.'</a>';
+        } else {
+            $this->context->controller->warnings[] = $message;
+        }
+    }
+
+    /**
+     * Add error message
+     *
+     * @param string $message Message
+     */
+    protected function addError($message)
+    {
+        if (!Tools::isSubmit('configure')) {
+            $this->context->controller->errors[] = '<a href="'.$this->baseUrl.'">'.$this->displayName.': '.$message.'</a>';
+        } else {
+            // Do not add error in this case
+            // It will break execution of AdminController
+            $this->context->controller->warnings[] = $message;
+        }
+    }
+
+    /**
+     * Validate GitHub repository
+     *
+     * @param string $repo Repository: username/repository
+     * @return bool Whether the repository is valid
+     */
+    protected function validateRepo($repo)
+    {
+        return count(explode('/', $repo)) === 2;
+    }
+
+    /**
+     * Extract module archive
+     *
+     * @param string $file     File location
+     * @param bool   $redirect Whether there should be a redirection after extracting
+     * @return bool
+     */
+    protected function extractArchive($file, $redirect = true)
+    {
+        $zipFolders = array();
+        $tmpFolder = _PS_MODULE_DIR_.'selfupdate'.md5(time());
+
+        if (@!file_exists($file)) {
+            $this->addError($this->l('Module archive could not be downloaded'));
+
+            return false;
+        }
+
+        $success = false;
+        if (substr($file, -4) == '.zip') {
+            if (Tools::ZipExtract($file, $tmpFolder) && file_exists($tmpFolder.DIRECTORY_SEPARATOR.$this->name)) {
+                if (@rename(_PS_MODULE_DIR_.$this->name, _PS_MODULE_DIR_.$this->name.'backup') && @rename($tmpFolder.DIRECTORY_SEPARATOR.$this->name, _PS_MODULE_DIR_.$this->name)) {
+                    $this->recursiveDeleteOnDisk(_PS_MODULE_DIR_.$this->name.'backup');
+                    $success = true;
+                } else {
+                    if (file_exists(_PS_MODULE_DIR_.$this->name.'backup')) {
+                        $this->recursiveDeleteOnDisk(_PS_MODULE_DIR_.$this->name);
+                        @rename(_PS_MODULE_DIR_.$this->name.'backup', _PS_MODULE_DIR_.$this->name);
+                    }
+                }
+            }
+        } else {
+            require_once(_PS_TOOL_DIR_.'tar/Archive_Tar.php');
+            $archive = new Archive_Tar($file);
+            if ($archive->extract($tmpFolder)) {
+                $zipFolders = scandir($tmpFolder);
+                if ($archive->extract(_PS_MODULE_DIR_)) {
+                    $success = true;
+                }
+            }
+        }
+
+        if (!$success) {
+            $this->addError($this->l('There was an error while extracting the update (file may be corrupted).'));
+            // Force a new check
+            Configuration::updateGlobalValue(self::LAST_CHECK, 0);
+        } else {
+            //check if it's a real module
+            foreach ($zipFolders as $folder) {
+                if (!in_array($folder, array('.', '..', '.svn', '.git', '__MACOSX')) && !Module::getInstanceByName($folder)) {
+                    $this->addError(sprintf($this->l('The module %1$s that you uploaded is not a valid module.'), $folder));
+                    $this->recursiveDeleteOnDisk(_PS_MODULE_DIR_.$folder);
+                }
+            }
+        }
+
+        @unlink($file);
+        $this->recursiveDeleteOnDisk($tmpFolder);
+
+
+        if ($success) {
+            Configuration::updateGlobalValue(self::LAST_UPDATE, (int) time());
+            if (function_exists('opcache_reset')) {
+                opcache_reset();
+            }
+            if ($redirect) {
+                Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules', true).'&doNotAutoUpdate=1');
+            }
+        }
+
+        return $success;
+    }
+
+    /**
+     * Delete folder recursively
+     *
+     * @param string $dir Directory
+     */
+    protected function recursiveDeleteOnDisk($dir)
+    {
+        if (strpos(realpath($dir), realpath(_PS_MODULE_DIR_)) === false) {
+            return;
+        }
+
+        if (is_dir($dir)) {
+            $objects = scandir($dir);
+            foreach ($objects as $object) {
+                if ($object != '.' && $object != '..') {
+                    if (filetype($dir.'/'.$object) == 'dir') {
+                        $this->recursiveDeleteOnDisk($dir.'/'.$object);
+                    } else {
+                        @unlink($dir.'/'.$object);
+                    }
+                }
+            }
+            reset($objects);
+            rmdir($dir);
+        }
     }
 }
