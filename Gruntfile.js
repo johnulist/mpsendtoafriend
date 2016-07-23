@@ -13,6 +13,7 @@ module.exports = function(grunt) {
                     {src: ['override/**'], dest: 'mpsendtoafriend/', filter: 'isFile'},
                     {src: ['logs/**'], dest: 'mpsendtoafriend/', filter: 'isFile'},
                     {src: ['vendor/**'], dest: 'mpsendtoafriend/', filter: 'isFile'},
+                    {src: ['mails/**'], dest: 'mpsendtoafriend/', filter: 'isFile'},
                     {src: ['translations/**'], dest: 'mpsendtoafriend/', filter: 'isFile'},
                     {src: ['upgrade/**'], dest: 'mpsendtoafriend/', filter: 'isFile'},
                     {src: ['optionaloverride/**'], dest: 'mpsendtoafriend/', filter: 'isFile'},
@@ -24,9 +25,11 @@ module.exports = function(grunt) {
                     {src: 'config.xml', dest: 'mpsendtoafriend/'},
                     {src: 'index.php', dest: 'mpsendtoafriend/'},
                     {src: 'mpsendtoafriend.php', dest: 'mpsendtoafriend/'},
+                    {src: 'mpsendtoafriend_ajax.php', dest: 'mpsendtoafriend/'},
                     {src: 'logo.png', dest: 'mpsendtoafriend/'},
                     {src: 'logo.gif', dest: 'mpsendtoafriend/'},
-                    {src: 'LICENSE', dest: 'mpsendtoafriend/'}
+                    {src: 'LICENSE.md', dest: 'mpsendtoafriend/'},
+                    {src: 'README.md', dest: 'mpsendtoafriend/'}
                 ]
             }
         }
