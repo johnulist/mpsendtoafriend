@@ -1,13 +1,20 @@
 <?php
 /**
- * Copyright (C) Mijn Presta - All Rights Reserved
+ * 2016 Mijn Presta
  *
- * Unauthorized copying of this file, via any medium is strictly prohibited
+ * NOTICE OF LICENSE
  *
- * @author    Michael Dekker <prestashopaddons@mijnpresta.nl>
- * @copyright 2015 Mijn Presta
- * @license   proprietary
- * Intellectual Property of Mijn Presta
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@mijnpresta.nl so we can send you a copy immediately.
+ *
+ *  @author    Michael Dekker <info@mijnpresta.nl>
+ *  @copyright 2016 Mijn Presta
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
 if (!defined('_PS_VERSION_')) {
@@ -23,6 +30,10 @@ class MpSendToAFriend extends Module
     public $secureKey;
     public $pageName;
 
+    const CAPTCHA = 'MPSENDTOAFRIEND_CAPTCHA';
+    const PUBLIC_KEY = 'MPSENDTOAFRIEND_PUBLIC_KEY';
+    const PRIVATE_KEY = 'MPSENDTOAFRIEND_PRIVATE_KEY';
+
     /**
      * MpSendToAFriend constructor.
      * @param bool $dontTranslate
@@ -36,7 +47,10 @@ class MpSendToAFriend extends Module
         $this->need_instance = 0;
         $this->secureKey = Tools::encrypt($this->name);
 
+
         parent::__construct();
+
+        $this->bootstrap = true;
 
         if (!$dontTranslate) {
             $this->displayName = $this->l('Send to a Friend module');
@@ -66,6 +80,132 @@ class MpSendToAFriend extends Module
     }
 
     /**
+     * Display module configuration page
+     */
+    public function getContent()
+    {
+        $output = '';
+
+        if (Tools::isSubmit('submit'.$this->name)) {
+            $this->postProcess();
+        }
+
+        $output .= $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
+        $output .= $this->displayForm();
+
+        return $output;
+    }
+
+    /**
+     * @return string
+     */
+    public function displayForm()
+    {
+        $helper = new HelperForm();
+
+        $helper->show_toolbar = false;
+        $helper->table = $this->table;
+        $helper->module = $this;
+        $helper->default_form_language = $this->context->language->id;
+        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
+
+        $helper->identifier = $this->identifier;
+        $helper->submit_action = 'submit'.$this->name;
+        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
+        $helper->token = Tools::getAdminTokenLite('AdminModules');
+
+        $helper->tpl_vars = array(
+            'fields_value' => $this->getConfigFormValues(),
+            'languages' => $this->context->controller->getLanguages(),
+            'id_language' => $this->context->language->id,
+        );
+
+        return $helper->generateForm(array($this->getConfigForm()));
+    }
+
+    protected function getConfigForm()
+    {
+        $input = array(
+            array(
+                'type' => 'text',
+                'label' => $this->l('reCAPTCHA site key'),
+                'name' => self::PUBLIC_KEY,
+                'size' => 64,
+                'desc' => $this->l('Used in the Javascript files that are served to users.'),
+                'required' => true,
+            ),
+            array(
+                'type' => 'text',
+                'label' => $this->l('reCAPTCHA secret key'),
+                'name' => self::PRIVATE_KEY,
+                'desc' => $this->l('Used for communication between the store and Google. Be sure to keep this key a secret.'),
+                'size' => 64,
+                'required' => true,
+            ),
+            array(
+                'type' => 'hr',
+                'name' => '',
+            ),
+            array(
+                'type' => 'switch',
+                'label' => $this->l('Enable captcha'),
+                'name' => self::CAPTCHA,
+                'is_bool' => true,
+                'values' => array(
+                    array(
+                        'id' => 'active_on',
+                        'value' => true,
+                        'label' => Translate::getAdminTranslation('Enabled', 'AdminCarriers'),
+                    ),
+                    array(
+                        'id' => 'active_off',
+                        'value' => false,
+                        'label' => Translate::getAdminTranslation('Disabled', 'AdminCarriers'),
+                    ),
+                ),
+            ),
+        );
+
+        return array(
+            'form' => array(
+                'legend' => array(
+                    'title' => Translate::getAdminTranslation('Settings', 'AdminReferrers'),
+                    'icon' => 'icon-cogs',
+                ),
+                'input' => $input,
+                'submit' => array(
+                    'title' => Translate::getAdminTranslation('Save', 'AdminReferrers'),
+                    'class' => (version_compare(_PS_VERSION_, '1.6', '<') ? 'button' : null),
+                ),
+            ),
+        );
+    }
+
+    /**
+     * Set values for the inputs.
+     */
+    protected function getConfigFormValues()
+    {
+        return array(
+            self::PRIVATE_KEY => Configuration::get(self::PRIVATE_KEY),
+            self::PUBLIC_KEY => Configuration::get(self::PUBLIC_KEY),
+            self::CAPTCHA => Configuration::get(self::CAPTCHA),
+        );
+    }
+
+    /**
+     * Save form data.
+     */
+    protected function postProcess()
+    {
+        Configuration::updateValue(self::PRIVATE_KEY, Tools::getValue(self::PRIVATE_KEY));
+        Configuration::updateValue(self::PUBLIC_KEY, Tools::getValue(self::PUBLIC_KEY));
+        Configuration::updateValue(self::CAPTCHA, Tools::getValue(self::CAPTCHA));
+
+        $this->context->controller->confirmations[] = $this->l('Successfully updated.');
+    }
+
+    /**
      * Hook to Extra Left
      *
      * @param array $params Hook parameters
@@ -84,8 +224,10 @@ class MpSendToAFriend extends Module
             )
         );
 
-        if (Module::isEnabled('mprecaptcha') && Configuration::get(Mprecaptcha::SENDTOAFRIEND)) {
-            $this->context->smarty->assign('sitekey', Configuration::get(Mprecaptcha::PUBLIC_KEY));
+        if (Configuration::get(self::PRIVATE_KEY)
+            && Configuration::get(self::PUBLIC_KEY)
+            && Configuration::get(self::CAPTCHA)) {
+            $this->context->smarty->assign('sitekey', Configuration::get(self::PUBLIC_KEY));
         }
 
         if (version_compare(_PS_VERSION_, '1.6.0.0', '<')) {
@@ -104,11 +246,10 @@ class MpSendToAFriend extends Module
     {
         $this->pageName = Dispatcher::getInstance()->getController();
         if ($this->pageName == 'product') {
-            if (Module::isEnabled('mprecaptcha')) {
-                $mprecaptcha = Module::getInstanceByName('mprecaptcha');
-                if (Configuration::get($mprecaptcha::SENDTOAFRIEND)) {
-                    $this->context->controller->addJS('https://www.google.com/recaptcha/api.js');
-                }
+            if (Configuration::get(self::PRIVATE_KEY)
+                && Configuration::get(self::PUBLIC_KEY)
+                &&Configuration::get(self::CAPTCHA)) {
+                $this->context->controller->addJS('https://www.google.com/recaptcha/api.js');
             }
             if (version_compare(_PS_VERSION_, '1.6.0.0', '<')) {
                 $this->context->controller->addCSS($this->local_path.'views/css/mpsendtoafriend15.css', 'all');

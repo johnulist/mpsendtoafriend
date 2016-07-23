@@ -1,0 +1,11 @@
+
+[{shop_url}] 
+
+Hi {name},
+
+Klik hier om dit item te bekijken: {product}
+[{product_link}] 
+
+{shop_name} [{shop_url}] powered by
+PrestaShop(tm) [http://www.prestashop.com/] 
+

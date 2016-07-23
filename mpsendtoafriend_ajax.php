@@ -1,13 +1,20 @@
 <?php
 /**
- * Copyright (C) Mijn Presta - All Rights Reserved
+ * 2016 Mijn Presta
  *
- * Unauthorized copying of this file, via any medium is strictly prohibited
+ * NOTICE OF LICENSE
  *
- * @author    Michael Dekker <prestashopaddons@mijnpresta.nl>
- * @copyright 2015 Mijn Presta
- * @license   proprietary
- * Intellectual Property of Mijn Presta
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@mijnpresta.nl so we can send you a copy immediately.
+ *
+ *  @author    Michael Dekker <info@mijnpresta.nl>
+ *  @copyright 2016 Mijn Presta
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
 require_once(dirname(__FILE__).'/../../config/config.inc.php');
@@ -18,18 +25,20 @@ include_once(dirname(__FILE__).'/mpsendtoafriend.php');
 $module = new MpSendToAFriend();
 
 if (Module::isEnabled('mpsendtoafriend') && Tools::getValue('action') == 'sendToMyFriend' && Tools::getValue('secure_key') == $module->secureKey) {
-    if (Module::isEnabled('mprecaptcha')) {
-        $recaptcha = Module::getInstanceByName('mprecaptcha');
-        if (Configuration::get($recaptcha::SENDTOAFRIEND)) {
-            require_once _PS_MODULE_DIR_.'mprecaptcha/lib/recaptchalib.php';
-            $recaptchalib = new MpReCaptchaLib(Configuration::get('MPRECAPTCHA_PRIVATE_KEY'));
-            $resp = $recaptchalib->verifyResponse(Tools::getRemoteAddr(), Tools::getValue('recaptcha'));
+    if (Configuration::get(MpSendToAFriend::PRIVATE_KEY)
+        && Configuration::get(MpSendToAFriend::PUBLIC_KEY)
+        && Configuration::get(MpSendToAFriend::CAPTCHA)) {
+        if (!class_exists('RecaptchaLib')) {
+            require_once _PS_MODULE_DIR_.'mpsendtoafriend/lib/recaptchalib.php';
+        }
+        $recaptchalib = new ReCaptchaLib(Configuration::get(MpSendToAFriend::PRIVATE_KEY));
+        $resp = $recaptchalib->verifyResponse(Tools::getRemoteAddr(), Tools::getValue('recaptcha'));
 
-            if ($resp == null || !($resp->success)) {
-                die('0');
-            }
+        if ($resp == null || !($resp->success)) {
+            die('0');
         }
     }
+
     // Retrocompatibilty with old theme
     if ($friend = Tools::getValue('friend')) {
         $friend = Tools::jsonDecode($friend, true);
@@ -85,8 +94,7 @@ if (Module::isEnabled('mpsendtoafriend') && Tools::getValue('action') == 'sendTo
         null,
         null,
         dirname(__FILE__).'/mails/'
-    )
-    ) {
+    )) {
         die('0');
     }
     die('1');
