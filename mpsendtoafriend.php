@@ -58,10 +58,10 @@ class MpSendToAFriend extends Module
     public function __construct($dontTranslate = false)
     {
         $this->name = 'mpsendtoafriend';
-        $this->version = '1.0.1';
+        $this->version = '1.1.0';
         $this->author = 'Mijn Presta';
         $this->tab = 'front_office_features';
-        $this->need_instance = 0;
+        $this->need_instance = 1;
         $this->secureKey = Tools::encrypt($this->name);
 
 
@@ -302,17 +302,20 @@ class MpSendToAFriend extends Module
     {
         $this->pageName = Dispatcher::getInstance()->getController();
         if ($this->pageName == 'product') {
-            if (Configuration::get(self::PRIVATE_KEY)
-                && Configuration::get(self::PUBLIC_KEY)
-                &&Configuration::get(self::CAPTCHA)) {
-                $this->context->controller->addJS('https://www.google.com/recaptcha/api.js');
-            }
             if (version_compare(_PS_VERSION_, '1.6.0.0', '<')) {
                 $this->context->controller->addCSS($this->local_path.'views/css/mpsendtoafriend15.css', 'all');
                 $this->context->controller->addJS($this->local_path.'views/js/mpsendtoafriend15.js');
             } else {
                 $this->context->controller->addCSS($this->local_path.'views/css/mpsendtoafriend16.css', 'all');
                 $this->context->controller->addJS($this->local_path.'views/js/mpsendtoafriend16.js');
+            }
+            if (Configuration::get(self::PRIVATE_KEY)
+                && Configuration::get(self::PUBLIC_KEY)
+                && Configuration::get(self::CAPTCHA)
+            ) {
+                $this->context->smarty->assign('sitekey', Configuration::get(self::PUBLIC_KEY));
+
+                return $this->display(__FILE__, 'views/templates/front/initcaptcha.tpl');
             }
         }
     }

@@ -61,7 +61,7 @@
 					</div>
 					{if isset($sitekey) && $sitekey}
 						<br />
-						<div class="g-recaptcha" data-sitekey="{$sitekey|escape:'htmlall':'UTF-8'}" style="transform:scale(0.86);-webkit-transform:scale(0.86);transform-origin:0 0;-webkit-transform-origin:0 0;"></div>
+						<div class="g-recaptcha-sendtoafriend" data-sitekey="{$sitekey|escape:'htmlall':'UTF-8'}" style="transform:scale(0.86);-webkit-transform:scale(0.86);transform-origin:0 0;-webkit-transform-origin:0 0;"></div>
 					{/if}
 					<p class="submit">
 						<button id="sendEmail" class="btn button button-small" name="sendEmail" type="submit">
