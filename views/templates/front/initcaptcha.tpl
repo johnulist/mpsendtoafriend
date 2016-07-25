@@ -19,10 +19,17 @@
 	<script type="text/javascript">
 		var SendtoafriendCaptchaCallback = function() {
 			$('.g-recaptcha-sendtoafriend').each(function(index, element) {
-				grecaptcha.render(element, {
+				window.sendtoafriend_captcha = grecaptcha.render(element, {
 					'sitekey': '{$sitekey|escape:'javascript':'UTF-8'}'
 				});
 			});
+			{if Module::isEnabled('mpproductcomments')}
+			$('.g-recaptcha-comments').each(function(index, element) {
+				window.comments_captcha = grecaptcha.render(element, {
+					'sitekey': '{$sitekey|escape:'javascript':'UTF-8'}'
+				});
+			});
+			{/if}
 		};
 	</script>
 	<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?onload=SendtoafriendCaptchaCallback&render=explicit" async defer></script>

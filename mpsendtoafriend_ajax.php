@@ -32,7 +32,7 @@ if (Module::isEnabled('mpsendtoafriend') && Tools::getValue('action') == 'sendTo
             require_once _PS_MODULE_DIR_.'mpsendtoafriend/lib/recaptchalib.php';
         }
         $recaptchalib = new ReCaptchaLib(Configuration::get(MpSendToAFriend::PRIVATE_KEY));
-        $resp = $recaptchalib->verifyResponse(Tools::getRemoteAddr(), Tools::getValue('recaptcha'));
+        $resp = $recaptchalib->verifyResponse(Tools::getRemoteAddr(), Tools::getValue('g-recaptcha-response'));
 
         if ($resp == null || !($resp->success)) {
             die('0');

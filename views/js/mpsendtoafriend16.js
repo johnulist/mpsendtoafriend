@@ -43,7 +43,7 @@ $(document).ready(function(){
 					name: name,
 					email: email, 
 					id_product: id_product,
-					recaptcha: grecaptcha.getResponse()
+					'g-recaptcha-response': grecaptcha.getResponse()
 				},
 				dataType: "json",
 				success: function(result) {
