@@ -72,7 +72,7 @@ if (Module::isEnabled('mpsendtoafriend') && Tools::getValue('action') == 'sendTo
     /* Email generation */
     $product = new Product((int) $idProduct, false, $module->context->language->id);
     $productLink = $module->context->link->getProductLink($product);
-    $customer = $module->context->cookie->customer_firstname ? $module->context->cookie->customer_firstname.' '.$module->context->cookie->customer_lastname : $module->l('A friend', 'sendtoafriend_ajax');
+    $customer = $module->context->cookie->customer_firstname ? $module->context->cookie->customer_firstname.' '.$module->context->cookie->customer_lastname : $module->l('A friend', 'mpsendtoafriend_ajax');
 
     $templateVars = array(
         '{product}' => $product->name,
