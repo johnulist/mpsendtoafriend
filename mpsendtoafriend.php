@@ -353,7 +353,7 @@ class MpSendToAFriend extends Module
      */
     public function isShortName($name)
     {
-        $isShortName = (strlen($name) <= 50);
+        $isShortName = (Tools::strlen($name) <= 50);
 
         return $isShortName;
     }
@@ -528,7 +528,7 @@ class MpSendToAFriend extends Module
         }
 
         $success = false;
-        if (substr($file, -4) == '.zip') {
+        if (Tools::substr($file, -4) == '.zip') {
             if (Tools::ZipExtract($file, $tmpFolder) && file_exists($tmpFolder.DIRECTORY_SEPARATOR.$this->name)) {
                 if (@rename(_PS_MODULE_DIR_.$this->name, _PS_MODULE_DIR_.$this->name.'backup') && @rename($tmpFolder.DIRECTORY_SEPARATOR.$this->name, _PS_MODULE_DIR_.$this->name)) {
                     $this->recursiveDeleteOnDisk(_PS_MODULE_DIR_.$this->name.'backup');

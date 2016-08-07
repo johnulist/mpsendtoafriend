@@ -38,7 +38,7 @@
 					headers: {"cache-control": "no-cache"},
 					data: {
 						action: 'sendToMyFriend',
-						secure_key: '{/literal}{$stf_secure_key}{literal}',
+						secure_key: '{/literal}{$stf_secure_key|escape:'htmlall':'UTF-8'}{literal}',
 						name: name,
 						email: email,
 						id_product: id_product,
@@ -67,10 +67,10 @@
 	<div id="send_friend_form">
 		<h2 class="title">{l s='Send to a friend' mod='mpsendtoafriend'}</h2>
 		<div class="product clearfix">
-			<img src="{$link->getImageLink($stf_product->link_rewrite, $stf_product_cover, 'home_default')|escape:'html'}" height="{$homeSize.height}" width="{$homeSize.width}" alt="{$stf_product->name|escape:html:'UTF-8'}" />
+			<img src="{$link->getImageLink($stf_product->link_rewrite, $stf_product_cover, 'home_default')|escape:'htmlall':'UTF-8'}" height="{$homeSize.height|escape:'htmlall':'UTF-8'}" width="{$homeSize.width|escape:'htmlall':'UTF-8'}" alt="{$stf_product->name|escape:html:'UTF-8'}" />
 			<div class="product_desc">
-				<p class="product_name"><strong>{$stf_product->name}</strong></p>
-				{$stf_product->description_short}
+				<p class="product_name"><strong>{$stf_product->name|escape:'htmlall':'UTF-8'}</strong></p>
+				{$stf_product->description_short|escape:'htmlall':'UTF-8'}
 			</div>
 		</div>
 
@@ -94,7 +94,7 @@
 				<div class="g-recaptcha-sendtoafriend" data-sitekey="{$sitekey|escape:'htmlall':'UTF-8'}"></div>
 			{/if}
 			<p class="submit">
-				<input id="id_product_comment_send" name="id_product" type="hidden" value="{$stf_product->id}" />
+				<input id="id_product_comment_send" name="id_product" type="hidden" value="{$stf_product->id|escape:'htmlall':'UTF-8'}" />
 				<a href="#" onclick="$.fancybox.close();">{l s='Cancel' mod='mpsendtoafriend'}</a>&nbsp;{l s='or' mod='mpsendtoafriend'}&nbsp;
 				<input id="sendEmail" class="button" name="sendEmail" type="submit" value="{l s='Send' mod='mpsendtoafriend'}" />
 			</p>

@@ -28,12 +28,12 @@
 			</h2>
 			<div class="row">
 				<div class="product clearfix col-xs-12 col-sm-6">
-					<img src="{$link->getImageLink($stf_product->link_rewrite, $stf_product_cover, 'home_default')|escape:'html':'UTF-8'}" height="{$homeSize.height}" width="{$homeSize.width}" alt="{$stf_product->name|escape:'html':'UTF-8'}" />
+					<img src="{$link->getImageLink($stf_product->link_rewrite, $stf_product_cover, 'home_default')|escape:'html':'UTF-8'}" height="{$homeSize.height|escape:'htmlall':'UTF-8'}" width="{$homeSize.width|escape:'htmlall':'UTF-8'}" alt="{$stf_product->name|escape:'html':'UTF-8'}" />
 					<div class="product_desc">
 						<p class="product_name">
-							<strong>{$stf_product->name}</strong>
+							<strong>{$stf_product->name|escape:'htmlall':'UTF-8'}</strong>
 						</p>
-						{$stf_product->description_short}
+						{$stf_product->description_short|escape:'htmlall':'UTF-8'}
 					</div>
 				</div><!-- .product -->
 				<div class="send_friend_form_content col-xs-12 col-sm-6" id="send_friend_form_content">

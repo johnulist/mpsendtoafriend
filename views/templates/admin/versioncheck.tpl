@@ -29,8 +29,8 @@
 			{l s='This module is up to date.' mod='mpsendtoafriend'}
 		</div>
 	{/if}
-	<a class="btn btn-default" href="{$baseUrl}&mpsendtoafriendCheckUpdate=1"><i class="icon icon-search"></i> {l s='Check for updates' mod='mpsendtoafriend'}</a>
+	<a class="btn btn-default" href="{$baseUrl|escape:'htmlall':'UTF-8'}&mpsendtoafriendCheckUpdate=1"><i class="icon icon-search"></i> {l s='Check for updates' mod='mpsendtoafriend'}</a>
 	{if $needsUpdate}
-		<a class="btn btn-default" href="{$baseUrl}&mpsendtoafriendApplyUpdate=1"><i class="icon icon-refresh"></i> {l s='Update module' mod='mpsendtoafriend'}</a>
+		<a class="btn btn-default" href="{$baseUrl|escape:'htmlall':'UTF-8'}&mpsendtoafriendApplyUpdate=1"><i class="icon icon-refresh"></i> {l s='Update module' mod='mpsendtoafriend'}</a>
 	{/if}
 </div>
