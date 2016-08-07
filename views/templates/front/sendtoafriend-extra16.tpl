@@ -16,7 +16,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *
 *}
-
+{addJsDef sendtoafriendAjax=$sendtoafriendAjax}
 <li class="sendtofriend">
 	<a id="send_friend_button" href="#send_friend_form">
 		{l s='Send to a friend' mod='mpsendtoafriend'}

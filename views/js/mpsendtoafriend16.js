@@ -16,8 +16,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-$(document).ready(function(){
-
+$(document).ready(function() {
 	if (!!$.prototype.fancybox)
 		$('#send_friend_button').fancybox({
 			'hideOnContentClick': false
@@ -34,7 +33,7 @@ $(document).ready(function(){
 		if (name && email && !isNaN(id_product))
 		{
 			$.ajax({
-				url: baseDir + 'modules/mpsendtoafriend/mpsendtoafriend_ajax.php?rand=' + new Date().getTime(),
+				url: sendtoafriendAjax,
 				type: "POST",
 				headers: {"cache-control": "no-cache"},
 				data: {

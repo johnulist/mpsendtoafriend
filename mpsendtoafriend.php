@@ -58,7 +58,7 @@ class MpSendToAFriend extends Module
     public function __construct($dontTranslate = false)
     {
         $this->name = 'mpsendtoafriend';
-        $this->version = '1.1.1';
+        $this->version = '1.1.2';
         $this->author = 'Mijn Presta';
         $this->tab = 'front_office_features';
         $this->need_instance = 1;
@@ -85,6 +85,8 @@ class MpSendToAFriend extends Module
             $this->lastCheck = Configuration::get(self::LAST_CHECK);
             $this->checkUpdate();
         }
+
+        $this->controllers = array('ajax');
     }
 
     /**
@@ -286,6 +288,10 @@ class MpSendToAFriend extends Module
             $this->context->smarty->assign('sitekey', Configuration::get(self::PUBLIC_KEY));
         }
 
+        $this->context->smarty->assign(array(
+            'sendtoafriendAjax' => $this->context->link->getModuleLink($this->name, 'ajax', array(), Tools::usingSecureMode()),
+        ));
+
         if (version_compare(_PS_VERSION_, '1.6.0.0', '<')) {
             return $this->context->smarty->fetch($this->local_path.'views/templates/front/sendtoafriend-extra15.tpl');
         }
@@ -297,11 +303,12 @@ class MpSendToAFriend extends Module
      * Hook to Front Office Header
      *
      * @param array $params Hook parameters
+     *
+     * @return string
      */
     public function hookHeader($params)
     {
-        $this->pageName = Dispatcher::getInstance()->getController();
-        if ($this->pageName == 'product') {
+        if (Tools::getValue('controller') == 'product') {
             if (version_compare(_PS_VERSION_, '1.6.0.0', '<')) {
                 $this->context->controller->addCSS($this->local_path.'views/css/mpsendtoafriend15.css', 'all');
                 $this->context->controller->addJS($this->local_path.'views/js/mpsendtoafriend15.js');
@@ -313,9 +320,11 @@ class MpSendToAFriend extends Module
                 && Configuration::get(self::PUBLIC_KEY)
                 && Configuration::get(self::CAPTCHA)
             ) {
-                $this->context->smarty->assign('sitekey', Configuration::get(self::PUBLIC_KEY));
+                $this->context->smarty->assign(array(
+                    'sitekey' => Configuration::get(self::PUBLIC_KEY),
+                ));
 
-                return $this->display(__FILE__, 'views/templates/front/initcaptcha.tpl');
+                return $this->context->smarty->fetch($this->local_path.'views/templates/front/initcaptcha.tpl');
             }
         }
     }
@@ -374,6 +383,12 @@ class MpSendToAFriend extends Module
      */
     protected function checkUpdate()
     {
+        if (!class_exists('\Github\Client')) {
+            $context = Context::getContext();
+            $context->controller->warnings[] = '<a href="'.htmlentities($this->baseUrl, ENT_COMPAT, 'UTF-8').'">'.$this->displayName.': '.$this->l('GitHub client not found. Could not check for module updates.').'</a>';
+
+            return;
+        }
         $lastCheck = (int) Configuration::get(self::LAST_CHECK);
         $lastUpdate = (int) Configuration::get(self::LAST_UPDATE);
 

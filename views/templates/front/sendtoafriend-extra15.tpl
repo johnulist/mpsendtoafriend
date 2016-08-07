@@ -18,6 +18,7 @@
 *}
 
 <script type="text/javascript">
+	var sendtoafriendAjax = '{$sendtoafriendAjax|escape:'javascript':'UTF-8'}';
 	{literal}
 	$('document').ready(function(){
 		$('#send_friend_button').fancybox({
@@ -31,8 +32,8 @@
 			var id_product = $('#id_product_comment_send').val();
 			if (name && email && !isNaN(id_product))
 			{
-				$.ajax({
-					{/literal}url: "{$module_dir}mpsendtoafriend_ajax.php",{literal}
+				$.ajax({{/literal}
+					url: sendtoafriendAjax,{literal}
 					type: "POST",
 					headers: {"cache-control": "no-cache"},
 					data: {
@@ -48,7 +49,7 @@
 						$.fancybox.close();
 						var msg = result ? "{/literal}{l s='Your e-mail has been sent successfully' mod='mpsendtoafriend'}{literal}" : "{/literal}{l s='Your e-mail could not be sent. Please check the name, e-mail address and captcha and try again.' mod='mpsendtoafriend'}{literal}";
 						var title = "{/literal}{l s='Send to a friend' mod='mpsendtoafriend'}{literal}";
-						fancyMsgBox(msg, title);
+						alert(msg);
 					}
 				});
 			}
@@ -90,7 +91,7 @@
 			</div>
 			{if isset($sitekey) && $sitekey}
 				<br />
-				<div class="g-recaptcha" data-sitekey="{$sitekey|escape:'htmlall':'UTF-8'}" style="transform:scale(0.86);-webkit-transform:scale(0.86);transform-origin:0 0;-webkit-transform-origin:0 0;"></div>
+				<div class="g-recaptcha-sendtoafriend" data-sitekey="{$sitekey|escape:'htmlall':'UTF-8'}"></div>
 			{/if}
 			<p class="submit">
 				<input id="id_product_comment_send" name="id_product" type="hidden" value="{$stf_product->id}" />

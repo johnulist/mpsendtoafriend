@@ -25,7 +25,6 @@ module.exports = function(grunt) {
                     {src: 'config.xml', dest: 'mpsendtoafriend/'},
                     {src: 'index.php', dest: 'mpsendtoafriend/'},
                     {src: 'mpsendtoafriend.php', dest: 'mpsendtoafriend/'},
-                    {src: 'mpsendtoafriend_ajax.php', dest: 'mpsendtoafriend/'},
                     {src: 'logo.png', dest: 'mpsendtoafriend/'},
                     {src: 'logo.gif', dest: 'mpsendtoafriend/'},
                     {src: 'LICENSE.md', dest: 'mpsendtoafriend/'},
