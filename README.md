@@ -45,5 +45,8 @@ The following versions are not supported, but the module could work on these:
 
 Use the issue tracker of this repository if you think that there is a problem.
 
+## Minimum system requirements
+- PHP `5.4`
+
 ## License
 Academic Free License 3.0
