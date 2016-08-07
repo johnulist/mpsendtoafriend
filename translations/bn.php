@@ -5,7 +5,7 @@ $_MODULE = array();
 
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend_2074615eb70699e55b1f9289c6c77c25'] = 'বন্ধু মডিউল পাঠান';
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend_3234e2609dd694d8763c390fe97eba04'] = 'গ্রাহকদের বন্ধুকে একটি পণ্য লিঙ্ক পাঠাতে অনুমতি দিন';
-$_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend_ajax_22c4733a9ceb239bf825a0cecd1cfaec'] = 'একজন বন্ধু';
+$_MODULE['<{mpsendtoafriend}prestashop>ajax_22c4733a9ceb239bf825a0cecd1cfaec'] = 'একজন বন্ধু';
 $_MODULE['<{mpsendtoafriend}prestashop>product_page_2107f6398c37b4b9ee1e1b5afb5d3b2a'] = ' বন্ধুদের পাঠান';
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend-extra_11cbd9ec2e4b628c371094b6361b9c96'] = 'আপনার ই মেইল ​​সফলভাবে পাঠানো হয়েছে';
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend-extra_36fb3f59b4a75949a0db90e7011b21f2'] = 'আপনার ই মেইল ​​প্রেরণ করা যায়নি।ইমেইল ঠিকানা পরীক্ষা করুন এবং আবার চেষ্টা করুন।';

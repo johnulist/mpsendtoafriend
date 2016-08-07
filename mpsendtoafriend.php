@@ -58,7 +58,7 @@ class MpSendToAFriend extends Module
     public function __construct($dontTranslate = false)
     {
         $this->name = 'mpsendtoafriend';
-        $this->version = '1.1.2';
+        $this->version = '1.1.3';
         $this->author = 'Mijn Presta';
         $this->tab = 'front_office_features';
         $this->need_instance = 1;

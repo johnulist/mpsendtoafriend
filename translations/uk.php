@@ -5,7 +5,7 @@ $_MODULE = array();
 
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend_2074615eb70699e55b1f9289c6c77c25'] = 'Модуль "Відправити другу"';
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend_3234e2609dd694d8763c390fe97eba04'] = 'Дозволяє клієнтам відправляти посилання на товар друзям';
-$_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend_ajax_22c4733a9ceb239bf825a0cecd1cfaec'] = 'Ваш друг';
+$_MODULE['<{mpsendtoafriend}prestashop>ajax_22c4733a9ceb239bf825a0cecd1cfaec'] = 'Ваш друг';
 $_MODULE['<{mpsendtoafriend}prestashop>product_page_2107f6398c37b4b9ee1e1b5afb5d3b2a'] = 'Надіслати другу';
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend-extra_2107f6398c37b4b9ee1e1b5afb5d3b2a'] = 'Надіслати другу';
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend-extra_d1f092e79827eaffce4a33fa011fde24'] = 'Ви не заповнили усі обов\'язкові поля';

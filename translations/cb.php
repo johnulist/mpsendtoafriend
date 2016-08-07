@@ -5,7 +5,7 @@ $_MODULE = array();
 
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend_2074615eb70699e55b1f9289c6c77c25'] = 'Módulo enviar a un amigo';
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend_3234e2609dd694d8763c390fe97eba04'] = 'Permite a los clientes enviar un enlace del producto a un amigo.';
-$_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend_ajax_22c4733a9ceb239bf825a0cecd1cfaec'] = 'Un amigo';
+$_MODULE['<{mpsendtoafriend}prestashop>ajax_22c4733a9ceb239bf825a0cecd1cfaec'] = 'Un amigo';
 $_MODULE['<{mpsendtoafriend}prestashop>product_page_2107f6398c37b4b9ee1e1b5afb5d3b2a'] = 'Enviar a un amigo';
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend-extra_11cbd9ec2e4b628c371094b6361b9c96'] = 'Su correo ha sido enviado con éxito';
 $_MODULE['<{mpsendtoafriend}prestashop>mpsendtoafriend-extra_36fb3f59b4a75949a0db90e7011b21f2'] = 'Su correo no ha podido ser enviado.  Por favor compruebe la dirección de correo electrónico e inténtelo de nuevo.';
