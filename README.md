@@ -1,7 +1,8 @@
-# Send to a Friend module
-
+# Send to a Friend module with captcha 
+<img src="http://img-9gag-fun.9cache.com/photo/aPWZR0V_700b_v1.jpg" alt="Mr. Robot" width="480">
 ## About
 This is a customized version of the Send to a Friend module by Mijn Presta. It allows you to add a captcha to the module. If you would like to secure the other forms in you store, you can use the Full Version.
+
 
 ## Full version
 You can secure the following forms with the full version:
