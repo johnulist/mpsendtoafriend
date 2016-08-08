@@ -3,17 +3,6 @@
 ## About
 This is a customized version of the Send to a Friend module by Mijn Presta. It allows you to add a captcha to the module. If you would like to secure the other forms in you store, you can use the Full Version.
 
-
-## Full version
-You can secure the following forms with the full version:
-- Login
-- Register
-- Password forgotten
-- Contact
-- Back Office login
-
-The module is available on Addons: http://addons.prestashop.com/en/19154-the-new-recaptcha.html
-
 ## Features
 ### Mission
 The aim of this module is to (finally) secure the plagued `sendtoafriend` module.
@@ -51,3 +40,13 @@ Use the issue tracker of this repository if you think that there is a problem.
 
 ## License
 Academic Free License 3.0
+
+## Full version
+You can secure the following forms with the full version:
+- Login
+- Register
+- Password forgotten
+- Contact
+- Back Office login
+
+The module is available on Addons: http://addons.prestashop.com/en/19154-the-new-recaptcha.html
