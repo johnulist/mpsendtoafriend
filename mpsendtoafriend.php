@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+require_once _PS_MODULE_DIR_.'mpsendtoafriend/vendor/autoload.php';
+
 /**
  * Class MpSendToAFriend
  */
@@ -58,7 +60,7 @@ class MpSendToAFriend extends Module
     public function __construct($dontTranslate = false)
     {
         $this->name = 'mpsendtoafriend';
-        $this->version = '1.1.3';
+        $this->version = '1.1.4';
         $this->author = 'Mijn Presta';
         $this->tab = 'front_office_features';
         $this->need_instance = 1;
